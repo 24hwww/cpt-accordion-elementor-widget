@@ -443,7 +443,8 @@ class Elementor_Cpt_Tab extends \Elementor\Widget_Base {
         </style>
         
         <script>
-        jQuery(document).ready(function($) {
+        document.addEventListener("DOMContentLoaded", function(event) {     
+            (function($){
 
             function isMobile() {
                 return window.innerWidth <= 767;
@@ -507,6 +508,8 @@ class Elementor_Cpt_Tab extends \Elementor\Widget_Base {
                     console.log('Tabs reinitialized after resize');
                 }, 250);
             });
+            
+        })(jQuery);
         });
         </script>
         <?php
