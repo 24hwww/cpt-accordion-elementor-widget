@@ -505,7 +505,7 @@ class Elementor_Cpt_Tab extends \Elementor\Widget_Base {
                         if (!$widget.hasClass('desktop-initialized')) {
 
                             if ($widget.find('.cpt-tabs-titles').length === 0) {
-                                $widget.prepend('<div class="cpt-tabs-titles"></div>');
+                                $widget.prepend('<div class="cpt-tabs-titles"></div>'); 
                                 $widget.append('<div class="cpt-tabs-contents"></div>');
                                 
 
