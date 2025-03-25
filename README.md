@@ -1,2 +1,2 @@
-# cpt-accordion-elementor-widget
-CPT Accordion Elementor Widget
+# embla-carousel-elementor-widget
+Embla Carousel in Elementor / Wordpress
