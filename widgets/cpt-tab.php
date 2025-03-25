@@ -291,21 +291,7 @@ class Elementor_Cpt_Tab extends \Elementor\Widget_Base {
         // Generar HTML para las pestañas
         ?>
         <div class="cpt-tabs-widget" id="cpt-tabs-<?php echo esc_attr($widget_id); ?>">
-            <div class="cpt-tabs-titles">
-                <?php 
-                $first = true;
-                foreach ($terms as $index => $term) : 
-                    $active_class = $first ? 'active' : '';
-                    $first = false;
-                ?>
-                    <div class="cpt-tab-title <?php echo esc_attr($active_class); ?>" 
-                         data-tab="<?php echo esc_attr($term->slug); ?>">
-                        <?php echo esc_html($term->name); ?>
-                    </div>
-                <?php endforeach; ?>
-            </div>
-            
-            <div class="cpt-tabs-contents">
+            <div class="cpt-tabs-container">
                 <?php 
                 $first = true;
                 foreach ($terms as $index => $term) : 
@@ -329,51 +315,63 @@ class Elementor_Cpt_Tab extends \Elementor\Widget_Base {
                     
                     $query = new \WP_Query($args);
                 ?>
-                    <div class="cpt-tab-content <?php echo esc_attr($active_class); ?>" 
-                         data-tab="<?php echo esc_attr($term->slug); ?>">
+                    <div class="cpt-tab-item" data-tab="<?php echo esc_attr($term->slug); ?>">
+                        <div class="cpt-tab-title <?php echo esc_attr($active_class); ?>" 
+                             data-tab="<?php echo esc_attr($term->slug); ?>">
+                            <?php echo esc_html($term->name); ?>
+                        </div>
                         
-                        <?php if ($query->have_posts()) : ?>
-                            <ul class="cpt-tab-posts">
-                                <?php while ($query->have_posts()) : $query->the_post(); ?>
-                                    <li class="cpt-tab-post">
-                                        <a href="<?php the_permalink(); ?>" class="cpt-tab-post-link">
-                                            <?php the_title(); ?>
-                                        </a>
-                                    </li>
-                                <?php endwhile; ?>
-                            </ul>
-                        <?php else : ?>
-                            <p><?php echo esc_html__('No hay posts para mostrar.', 'cpt-tab'); ?></p>
-                        <?php endif; ?>
-                        
-                        <?php wp_reset_postdata(); ?>
+                        <div class="cpt-tab-content <?php echo esc_attr($active_class); ?>" 
+                             data-tab="<?php echo esc_attr($term->slug); ?>">
+                            
+                            <?php if ($query->have_posts()) : ?>
+                                <ul class="cpt-tab-posts">
+                                    <?php while ($query->have_posts()) : $query->the_post(); ?>
+                                        <li class="cpt-tab-post">
+                                            <a href="<?php the_permalink(); ?>" class="cpt-tab-post-link">
+                                                <?php the_title(); ?>
+                                            </a>
+                                        </li>
+                                    <?php endwhile; ?>
+                                </ul>
+                            <?php else : ?>
+                                <p><?php echo esc_html__('No hay posts para mostrar.', 'cpt-tab'); ?></p>
+                            <?php endif; ?>
+                            
+                            <?php wp_reset_postdata(); ?>
+                        </div>
                     </div>
                 <?php endforeach; ?>
             </div>
         </div>
         
         <style>
-            #cpt-tabs-<?php echo esc_attr($widget_id); ?> .cpt-tabs-titles {
-                display: flex;
-                flex-wrap: wrap;
-                margin-bottom: 0;
+            /* Estilos base para todos los dispositivos */
+            #cpt-tabs-<?php echo esc_attr($widget_id); ?> .cpt-tabs-container {
+                width: 100%;
             }
             
             #cpt-tabs-<?php echo esc_attr($widget_id); ?> .cpt-tab-title {
                 padding: 10px 15px;
-                margin-right: 5px;
                 cursor: pointer;
-                border-radius: 5px 5px 0 0;
+                background-color: <?php echo esc_attr($settings['tab_background_color'] ?? '#f5f5f5'); ?>;
+                color: <?php echo esc_attr($settings['tab_color'] ?? '#333333'); ?>;
                 transition: all 0.3s ease;
             }
             
-            #cpt-tabs-<?php echo esc_attr($widget_id); ?> .cpt-tabs-contents {
-                border: 1px solid #ddd;
-                border-radius: 0 5px 5px 5px;
+            #cpt-tabs-<?php echo esc_attr($widget_id); ?> .cpt-tab-title.active {
+                background-color: <?php echo esc_attr($settings['active_tab_background_color'] ?? '#0073aa'); ?>;
+                color: <?php echo esc_attr($settings['active_tab_color'] ?? '#ffffff'); ?>;
             }
             
             #cpt-tabs-<?php echo esc_attr($widget_id); ?> .cpt-tab-content {
                 display: none;
+                background-color: <?php echo esc_attr($settings['content_background_color'] ?? '#ffffff'); ?>;
+                color: <?php echo esc_attr($settings['content_color'] ?? '#333333'); ?>;
+                padding: <?php echo esc_attr($settings['content_padding']['top'] ?? '15'); ?>px 
+                         <?php echo esc_attr($settings['content_padding']['right'] ?? '15'); ?>px 
+                         <?php echo esc_attr($settings['content_padding']['bottom'] ?? '15'); ?>px 
+                         <?php echo esc_attr($settings['content_padding']['left'] ?? '15'); ?>px;
             }
             
             #cpt-tabs-<?php echo esc_attr($widget_id); ?> .cpt-tab-content.active {
@@ -395,20 +393,78 @@ class Elementor_Cpt_Tab extends \Elementor\Widget_Base {
                 border-bottom: none;
             }
             
-            /* Estilos para modo acordeón en móviles */
+            /* Estilos para desktop (pestañas horizontales) */
+            @media (min-width: 768px) {
+                #cpt-tabs-<?php echo esc_attr($widget_id); ?> .cpt-tabs-container {
+                    display: flex;
+                    flex-direction: column;
+                }
+                
+                #cpt-tabs-<?php echo esc_attr($widget_id); ?> .cpt-tab-item {
+                    display: none; /* Ocultar contenedores individuales */
+                }
+                
+                #cpt-tabs-<?php echo esc_attr($widget_id); ?> .cpt-tab-title {
+                    display: inline-block;
+                    margin-right: 5px;
+                    border-radius: 5px 5px 0 0;
+                    position: relative;
+                    z-index: 2;
+                }
+                
+                #cpt-tabs-<?php echo esc_attr($widget_id); ?> .cpt-tab-title.active {
+                    border-bottom: none;
+                }
+                
+                /* Crear contenedor para las pestañas */
+                #cpt-tabs-<?php echo esc_attr($widget_id); ?>::before {
+                    content: "";
+                    display: flex;
+                    flex-wrap: wrap;
+                }
+                
+                /* Mover todos los títulos al contenedor de pestañas */
+                #cpt-tabs-<?php echo esc_attr($widget_id); ?> .cpt-tab-title {
+                    position: relative;
+                    top: 0;
+                    order: -1;
+                }
+                
+                #cpt-tabs-<?php echo esc_attr($widget_id); ?> .cpt-tab-content {
+                    border: 1px solid #ddd;
+                    border-radius: 0 5px 5px 5px;
+                    margin-top: -1px;
+                    position: relative;
+                    z-index: 1;
+                }
+                
+                /* Mostrar todos los títulos */
+                #cpt-tabs-<?php echo esc_attr($widget_id); ?> .cpt-tab-title {
+                    display: inline-block !important;
+                }
+                
+                /* Mostrar solo el contenido activo */
+                #cpt-tabs-<?php echo esc_attr($widget_id); ?> .cpt-tab-content.active {
+                    display: block !important;
+                    position: relative;
+                    z-index: 1;
+                }
+            }
+            
+            /* Estilos para móvil (acordeón vertical) */
             @media (max-width: 767px) {
-                #cpt-tabs-<?php echo esc_attr($widget_id); ?> .cpt-tabs-titles {
-                    display: block;
-                    width: 100%;
+                #cpt-tabs-<?php echo esc_attr($widget_id); ?> .cpt-tab-item {
+                    margin-bottom: 10px;
+                    border: 1px solid #ddd;
+                    border-radius: 5px;
+                    overflow: hidden;
                 }
                 
                 #cpt-tabs-<?php echo esc_attr($widget_id); ?> .cpt-tab-title {
                     display: block;
                     width: 100%;
-                    margin-right: 0;
-                    margin-bottom: 1px;
-                    border-radius: 5px;
                     position: relative;
+                    border-radius: 5px;
                 }
                 
                 #cpt-tabs-<?php echo esc_attr($widget_id); ?> .cpt-tab-title:after {
@@ -425,19 +481,8 @@ class Elementor_Cpt_Tab extends \Elementor\Widget_Base {
                     content: '-';
                 }
                 
-                #cpt-tabs-<?php echo esc_attr($widget_id); ?> .cpt-tabs-contents {
-                    border: none;
-                }
-                
                 #cpt-tabs-<?php echo esc_attr($widget_id); ?> .cpt-tab-content {
-                    margin-bottom: 10px;
-                    border: 1px solid #ddd;
-                    border-top: none;
-                    border-radius: 0 0 5px 5px;
-                }
-                
-                #cpt-tabs-<?php echo esc_attr($widget_id); ?> .cpt-tab-content.active {
-                    display: block;
+                    border-top: 1px solid #ddd;
                 }
             }
         </style>
@@ -445,71 +490,120 @@ class Elementor_Cpt_Tab extends \Elementor\Widget_Base {
         <script>
         document.addEventListener("DOMContentLoaded", function(event) {     
             (function($){
-
-            function isMobile() {
-                return window.innerWidth <= 767;
-            }
-            
-
-            function initTabsAccordion() {
-                var $widget = $('#cpt-tabs-<?php echo esc_attr($widget_id); ?>');
-                var $tabs = $widget.find('.cpt-tab-title');
-                var $contents = $widget.find('.cpt-tab-content');
-                
-                if (!isMobile() && !$tabs.filter('.active').length) {
-                    $tabs.first().addClass('active');
-                    $contents.first().addClass('active');
+                function isMobile() {
+                    return window.innerWidth <= 767;
                 }
                 
-
-                $tabs.off('click');
-                
-
-                $tabs.on('click', function(e) {
-                    e.preventDefault();
-                    var tabId = $(this).data('tab');
-                    console.log('Tab clicked:', tabId); 
+                function initTabsAccordion() {
+                    var $widget = $('#cpt-tabs-<?php echo esc_attr($widget_id); ?>');
+                    var $tabItems = $widget.find('.cpt-tab-item');
+                    var $tabs = $widget.find('.cpt-tab-title');
+                    var $contents = $widget.find('.cpt-tab-content');
                     
                     if (!isMobile()) {
-
-                        $tabs.removeClass('active');
-                        $(this).addClass('active');
-                        
-                        $contents.removeClass('active');
-                        $widget.find('.cpt-tab-content[data-tab="' + tabId + '"]').addClass('active');
-                        console.log('Desktop mode - showing tab:', tabId); 
+                        // Modo desktop - Mover todos los títulos y contenidos para crear estructura de pestañas
+                        if (!$widget.hasClass('desktop-initialized')) {
+                            // Crear contenedores si no existen
+                            if ($widget.find('.cpt-tabs-titles').length === 0) {
+                                $widget.prepend('<div class="cpt-tabs-titles"></div>');
+                                $widget.append('<div class="cpt-tabs-contents"></div>');
+                                
+                                // Mover todos los títulos al contenedor de títulos
+                                $tabs.each(function() {
+                                    var $tab = $(this);
+                                    var tabId = $tab.data('tab');
+                                    $widget.find('.cpt-tabs-titles').append($tab.detach());
+                                });
+                                
+                                // Mover todos los contenidos al contenedor de contenidos
+                                $contents.each(function() {
+                                    var $content = $(this);
+                                    $widget.find('.cpt-tabs-contents').append($content.detach());
+                                });
+                                
+                                $widget.addClass('desktop-initialized');
+                            }
+                            
+                            // Asegurarse de que al menos una pestaña esté activa
+                            if (!$tabs.filter('.active').length) {
+                                $tabs.first().addClass('active');
+                                $contents.first().addClass('active');
+                            }
+                        }
                     } else {
-
-                        if ($(this).hasClass('active')) {
-                            $(this).removeClass('active');
-                            $widget.find('.cpt-tab-content[data-tab="' + tabId + '"]').removeClass('active');
-                            console.log('Mobile mode - hiding tab:', tabId); 
-                        } else {
-                            $(this).addClass('active');
-                            $widget.find('.cpt-tab-content[data-tab="' + tabId + '"]').addClass('active');
-                            console.log('Mobile mode - showing tab:', tabId);
+                        // Modo móvil - Restaurar estructura original para acordeón
+                        if ($widget.hasClass('desktop-initialized')) {
+                            // Restaurar la estructura original
+                            $tabs.each(function() {
+                                var $tab = $(this);
+                                var tabId = $tab.data('tab');
+                                var $item = $widget.find('.cpt-tab-item[data-tab="' + tabId + '"]');
+                                $item.prepend($tab.detach());
+                            });
+                            
+                            $contents.each(function() {
+                                var $content = $(this);
+                                var tabId = $content.data('tab');
+                                var $item = $widget.find('.cpt-tab-item[data-tab="' + tabId + '"]');
+                                $item.append($content.detach());
+                            });
+                            
+                            // Eliminar contenedores temporales
+                            $widget.find('.cpt-tabs-titles').remove();
+                            $widget.find('.cpt-tabs-contents').remove();
+                            
+                            $widget.removeClass('desktop-initialized');
                         }
                     }
-                });
-            }
-            
-
-            setTimeout(function() {
-                initTabsAccordion();
-                console.log('Tabs initialized'); 
-            }, 100);
-            
-
-            var resizeTimer;
-            $(window).on('resize', function() {
-                clearTimeout(resizeTimer);
-                resizeTimer = setTimeout(function() {
+                    
+                    // Eliminar eventos previos para evitar duplicados
+                    $tabs.off('click');
+                    
+                    // Añadir eventos de clic según el modo
+                    $tabs.on('click', function(e) {
+                        e.preventDefault();
+                        var tabId = $(this).data('tab');
+                        console.log('Tab clicked:', tabId);
+                        
+                        if (!isMobile()) {
+                            // Modo desktop - comportamiento de pestañas
+                            $tabs.removeClass('active');
+                            $(this).addClass('active');
+                            
+                            $contents.removeClass('active');
+                            $widget.find('.cpt-tab-content[data-tab="' + tabId + '"]').addClass('active');
+                            console.log('Desktop mode - showing tab:', tabId);
+                        } else {
+                            // Modo móvil - comportamiento de acordeón
+                            if ($(this).hasClass('active')) {
+                                $(this).removeClass('active');
+                                $widget.find('.cpt-tab-content[data-tab="' + tabId + '"]').removeClass('active');
+                                console.log('Mobile mode - hiding tab:', tabId);
+                            } else {
+                                $(this).addClass('active');
+                                $widget.find('.cpt-tab-content[data-tab="' + tabId + '"]').addClass('active');
+                                console.log('Mobile mode - showing tab:', tabId);
+                            }
+                        }
+                    });
+                }
+                
+                // Inicializar con un pequeño retraso para asegurar que todo esté cargado
+                setTimeout(function() {
                     initTabsAccordion();
-                    console.log('Tabs reinitialized after resize');
-                }, 250);
-            });
-            
-        })(jQuery);
+                    console.log('Tabs initialized');
+                }, 100);
+                
+                // Reinicializar al cambiar el tamaño de la ventana con debounce
+                var resizeTimer;
+                $(window).on('resize', function() {
+                    clearTimeout(resizeTimer);
+                    resizeTimer = setTimeout(function() {
+                        initTabsAccordion();
+                        console.log('Tabs reinitialized after resize');
+                    }, 250);
+                });
+            })(jQuery);
         });
         </script>
         <?php
