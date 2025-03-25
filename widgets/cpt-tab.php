@@ -444,68 +444,67 @@ class Elementor_Cpt_Tab extends \Elementor\Widget_Base {
         
         <script>
         jQuery(document).ready(function($) {
-            // Función para detectar si estamos en móvil
+
             function isMobile() {
                 return window.innerWidth <= 767;
             }
             
-            // Función para inicializar el comportamiento
+
             function initTabsAccordion() {
                 var $widget = $('#cpt-tabs-<?php echo esc_attr($widget_id); ?>');
                 var $tabs = $widget.find('.cpt-tab-title');
                 var $contents = $widget.find('.cpt-tab-content');
                 
-                // Asegurarse de que al menos una pestaña esté activa en modo desktop
                 if (!isMobile() && !$tabs.filter('.active').length) {
                     $tabs.first().addClass('active');
                     $contents.first().addClass('active');
                 }
                 
-                // Eliminar eventos previos para evitar duplicados
+
                 $tabs.off('click');
                 
-                // Añadir eventos de clic según el modo
+
                 $tabs.on('click', function(e) {
                     e.preventDefault();
                     var tabId = $(this).data('tab');
-                    console.log('Tab clicked:', tabId); // Debug
+                    console.log('Tab clicked:', tabId); 
                     
                     if (!isMobile()) {
-                        // Modo desktop - comportamiento de pestañas
+
                         $tabs.removeClass('active');
                         $(this).addClass('active');
                         
                         $contents.removeClass('active');
                         $widget.find('.cpt-tab-content[data-tab="' + tabId + '"]').addClass('active');
-                        console.log('Desktop mode - showing tab:', tabId); // Debug
+                        console.log('Desktop mode - showing tab:', tabId); 
                     } else {
-                        // Modo móvil - comportamiento de acordeón
+
                         if ($(this).hasClass('active')) {
                             $(this).removeClass('active');
                             $widget.find('.cpt-tab-content[data-tab="' + tabId + '"]').removeClass('active');
-                            console.log('Mobile mode - hiding tab:', tabId); // Debug
+                            console.log('Mobile mode - hiding tab:', tabId); 
                         } else {
                             $(this).addClass('active');
                             $widget.find('.cpt-tab-content[data-tab="' + tabId + '"]').addClass('active');
-                            console.log('Mobile mode - showing tab:', tabId); // Debug
+                            console.log('Mobile mode - showing tab:', tabId);
                         }
                     }
                 });
             }
             
-            // Inicializar con un pequeño retraso para asegurar que todo esté cargado
+
             setTimeout(function() {
                 initTabsAccordion();
-                console.log('Tabs initialized'); // Debug
+                console.log('Tabs initialized'); 
             }, 100);
             
-            // Reinicializar al cambiar el tamaño de la ventana con debounce
+
             var resizeTimer;
             $(window).on('resize', function() {
                 clearTimeout(resizeTimer);
                 resizeTimer = setTimeout(function() {
                     initTabsAccordion();
-                    console.log('Tabs reinitialized after resize'); // Debug
+                    console.log('Tabs reinitialized after resize');
                 }, 250);
             });
         });
